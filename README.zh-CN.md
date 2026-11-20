@@ -142,11 +142,11 @@
 | **`F` 键 / `FACE` 按钮** | 切换至面部特写视角观察表情细节 |
 | **`B` 键 / `BOUNCE` 按钮** | 触发弹性挤压拉伸（Squash & Stretch）弹跳 |
 | **`Q` / `E` 或 `←` / `→`** | 平滑左右连续旋转 |
-| **`R` 键 / `RESET` 按钮** | 重置为默认观感（`SQUASH 0.35` / `ICE LAB` / `SMOOTH AA`） |
+| **`R` 键 / `RESET` 按钮** | 重置为默认观感（`PITCH 20°` / `ICE LAB` / `SMOOTH AA`） |
 
 ### 画面自定义（右侧控制面板）
 - **RENDER STYLE（质感模式）**：`SMOOTH AA`（默认丝滑抗锯齿）／`PIXEL+AA`（像素颗粒感＋边缘抗锯齿）／`RETRO PX`（经典硬边复古像素）／`SILKY 3D`（手办级柔滑曲面），并支持调节 `DOT SIZE`
-- **3D 相机与层叠参数**：`ANIM FPS`（6～36 FPS 变速）/ `SQUASH`（俯仰角 `0.35`～`1.00`，`TOP` 俯视）/ `SPACING`（点击 `SPREAD` 可展开观察全部 160 层切片）/ `ZOOM`
+- **3D 相机与层叠参数**：`ANIM FPS`（6～36 FPS 变速）/ `PITCH`（真 3D 俯仰角 `15°`～`90°`，`TOP` 真俯视）/ `SPACING`（点击 `SPREAD` 可展开观察全部 160 层切片）/ `ZOOM`
 - **背景主题与开关**：`ICE LAB` / `DEEP SEA` / `MIDNIGHT` 三套场景主题，`FX: ON/OFF`、`OUTLINE: ON/OFF`、`SPRING: ON/OFF`
 
 ---

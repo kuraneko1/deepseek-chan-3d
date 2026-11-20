@@ -142,11 +142,11 @@ Features 9 power-type motions (`1. IDLE` / `2. MARCH` / `3. FLEX` / `4. SHHH` / 
 | **`F` / `FACE` Button** | Focus camera close-up on the character's face & expression |
 | **`B` / `BOUNCE` Button** | Trigger elastic squash-and-stretch bounce |
 | **`Q` / `E` or `←` / `→`** | Rotate left / right smoothly |
-| **`R` / `RESET` Button** | Reset to defaults (`SQUASH 0.35` / `ICE LAB` / `SMOOTH AA`) |
+| **`R` / `RESET` Button** | Reset to defaults (`PITCH 20°` / `ICE LAB` / `SMOOTH AA`) |
 
 ### Visual Customization (Right Panel)
 - **RENDER STYLE**: `SMOOTH AA` (default) · `PIXEL+AA` (crisp square pixel grain + smooth edge AA) · `RETRO PX` (classic hard-edge pixel art) · `SILKY 3D` (smooth figurine look) + adjustable `DOT SIZE`
-- **3D CONTROLS**: `ANIM FPS` (6–36 FPS) · `SQUASH` (elevation angle `0.35`–`1.00`, `TOP` overhead view) · `SPACING` (`SPREAD` explodes all 160 stacked slices) · `ZOOM`
+- **3D CONTROLS**: `ANIM FPS` (6–36 FPS) · `PITCH` (true 3D elevation angle `15°`–`90°`, `TOP` overhead view) · `SPACING` (`SPREAD` explodes all 160 stacked slices) · `ZOOM`
 - **THEMES & FX**: `ICE LAB` / `DEEP SEA` / `MIDNIGHT` studio themes, `FX: ON/OFF`, `OUTLINE: ON/OFF`, `SPRING: ON/OFF`
 
 ---

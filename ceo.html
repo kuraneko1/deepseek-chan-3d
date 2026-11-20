@@ -585,15 +585,15 @@
         </div>
 
         <div class="slider-row">
-          <span class="slider-label">SQUASH</span>
-          <div class="px-slider" id="slSquash" role="slider" tabindex="0" aria-label="Camera Squash" aria-valuemin="0.35" aria-valuemax="1.00" aria-valuenow="0.35">
+          <span class="slider-label">PITCH</span>
+          <div class="px-slider" id="slSquash" role="slider" tabindex="0" aria-label="Camera Pitch Angle" aria-valuemin="15" aria-valuemax="90" aria-valuenow="20">
             <div class="px-slider-track">
               <div class="px-slider-fill"></div>
               <div class="px-slider-ticks"></div>
             </div>
             <div class="px-slider-thumb"></div>
           </div>
-          <span class="slider-val" id="valSquash">0.35</span>
+          <span class="slider-val" id="valSquash">20°</span>
           <button class="px-btn slider-action" id="btnTopView" type="button">TOP</button>
         </div>
 
@@ -684,6 +684,9 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     { motion: MOTION_LIST[0] ? MOTION_LIST[0].id : "idle", animFps: 24, renderMode: 2, dotSize: 1.35, squash: 0.35, spacing: 1.0, zoom: 1.45, themeIdx: 1, angleDeg: 20.0 },
     CFG.defaults || {}
   );
+  const DEFAULT_PITCH_DEG = (typeof DEFAULTS.pitchDeg === "number")
+    ? Math.max(15, Math.min(90, Math.round(DEFAULTS.pitchDeg)))
+    : Math.max(15, Math.min(90, Math.round((Math.asin(Math.max(0.25, Math.min(1.0, DEFAULTS.squash))) * 180) / Math.PI)));
 
   const TWO_PI = Math.PI * 2;
   const THEMES = [
@@ -713,7 +716,8 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     angle: (DEFAULTS.angleDeg * Math.PI) / 180,
     autoSpin: true,
     spinSpeed: 0.42,
-    squash: DEFAULTS.squash,
+    pitchDeg: DEFAULT_PITCH_DEG,
+    squash: Math.sin((DEFAULT_PITCH_DEG * Math.PI) / 180),
     spacing: DEFAULTS.spacing,
     zoom: DEFAULTS.zoom,
     faceFocus: false,
@@ -1708,12 +1712,20 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     const assetKey = `${mDef.keyPrefix}${String(fIdx).padStart(2, "0")}`;
     const atlasTex = getAtlasTexture(assetKey);
 
+    // True 3D orthographic elevation: y_screen = rot.y * sin(pitch) - z * cos(pitch) * spacing
+    const pitchRad = (state.pitchDeg * Math.PI) / 180;
+    const sinP = Math.sin(pitchRad);
+    const cosP = Math.cos(pitchRad);
+    state.squash = sinP;
+    const zStep = cosP * state.spacing;
+
     let baseUnitPx;
     if (state.faceFocus) {
       baseUnitPx = Math.min(cw / 108, ch / 118) * (state.zoom / 2.2);
     } else {
       const needW = CHAR.fboVirtW;
-      const needH = CHAR.sliceCount * state.spacing + CHAR.sliceH * 1.1 * state.squash + 44;
+      // Pitch-invariant fit height so tilting the camera never jumps zoom
+      const needH = CHAR.sliceCount * Math.max(1.0, state.spacing) + CHAR.sliceH * 0.42 + 44;
       const fitScale = Math.min(cw / needW, ch / needH);
       baseUnitPx = fitScale * (state.zoom / 1.45);
     }
@@ -1722,14 +1734,21 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     const sxMul = state.sqX;
     const syMul = state.sqY;
 
+    // Dynamically center character pivot inside charFbo so all pitch angles (15°..90°) fit cleanly
+    const charBottomMargin = Math.max(22, Math.ceil(CHAR.sliceH * 0.52 * sinP + 14));
+    const charPivotY = Math.min(
+      charFbo.virtH - charBottomMargin,
+      Math.round(charFbo.virtH * 0.5 + (CHAR.sliceCount * 0.44) * zStep)
+    );
+
     // PASS 1A: Main 3D character stack -> charFbo
     if (atlasTex) {
-      const vbo = (state.spacing > 1.32) ? charVBO1x : charVBO2x;
+      const vbo = (zStep < 0.05 || state.spacing > 1.32) ? charVBO1x : charVBO2x;
       renderStackToFbo(
         charFbo, vbo, atlasTex,
         CHAR.sliceW, CHAR.sliceH, CHAR.atlasCols, CHAR.atlasRows,
-        CHAR_PIVOT_X, CHAR_PIVOT_Y,
-        state.angle, state.squash, state.spacing, sxMul, syMul
+        CHAR_PIVOT_X, charPivotY,
+        state.angle, sinP, zStep, sxMul, syMul
       );
     }
 
@@ -1752,14 +1771,19 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
         const vx = -rx * Math.sin(orbitPh);
         const vy = ry * Math.cos(orbitPh);
         const compAngle = (orb.faceTangent !== false) ? (state.angle + Math.atan2(-vx, vy)) : state.angle;
-        const cVbo = (state.spacing > 1.32) ? cg.vbo1x : cg.vbo2x;
+        const compBottomMargin = Math.max(14, Math.ceil(cd.sliceH * 0.52 * sinP + 8));
+        const compPivotY = Math.min(
+          cg.fbo.virtH - compBottomMargin,
+          Math.round(cg.fbo.virtH * 0.5 + (cd.sliceCount * 0.45) * zStep)
+        );
+        const cVbo = (zStep < 0.05 || state.spacing > 1.32) ? cg.vbo1x : cg.vbo2x;
         renderStackToFbo(
           cg.fbo, cVbo, cTex,
           cd.sliceW, cd.sliceH, cd.atlasCols, cd.atlasRows,
-          cg.pivotX, cg.pivotY,
-          compAngle, state.squash, state.spacing, 1.0, 1.0
+          cg.pivotX, compPivotY,
+          compAngle, sinP, zStep, 1.0, 1.0
         );
-        compDraw = { cg, wx, wy, wz, scale: cd.scale ?? 0.92, outRgb: cd.outlineRgb || theme.outline };
+        compDraw = { cg, pivotY: compPivotY, wx, wy, wz, scale: cd.scale ?? 0.92, outRgb: cd.outlineRgb || theme.outline };
       }
     }
 
@@ -1783,10 +1807,11 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     const screenCx = cw * 0.5;
     let screenGroundY;
     if (state.faceFocus) {
-      screenGroundY = ch * 0.56 + CHAR.faceFocusZ * state.spacing * baseUnitPx;
+      screenGroundY = ch * 0.56 + CHAR.faceFocusZ * zStep * baseUnitPx;
     } else {
-      const totalH = (CHAR.sliceCount * state.spacing + 70.0 * state.squash) * baseUnitPx;
-      screenGroundY = ch * 0.50 + totalH * 0.36;
+      // Orbit camera pitch smoothly around character vertical center
+      const midZ = CHAR.sliceCount * 0.44;
+      screenGroundY = ch * 0.51 + midZ * zStep * baseUnitPx;
     }
 
     const ca = Math.cos(state.angle);
@@ -1800,7 +1825,7 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
       const ry = px * sa + py * ca;
       return {
         sx: screenCx + rx * sxMul * baseUnitPx,
-        sy: screenGroundY + (ry * state.squash - wz * state.spacing) * syMul * baseUnitPx,
+        sy: screenGroundY + (ry * sinP - wz * zStep) * syMul * baseUnitPx,
         depth: ry,
       };
     }
@@ -1817,7 +1842,7 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
       const ringTex = getStaticTex("turntableRing");
       if (ringTex) {
         const rw = 132 * baseUnitPx;
-        const rh = 132 * state.squash * baseUnitPx;
+        const rh = 132 * sinP * baseUnitPx;
         drawQuadSprite(ringTex, screenCx, screenGroundY, rw, rh, 0.94, 0);
       }
 
@@ -1836,7 +1861,7 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
             if (rp > 0.0 && rp < 1.0) {
               const pRing = fx.forwardOffset ? project3D(0, fx.forwardOffset + rp * 28, 1.0) : { sx: screenCx, sy: screenGroundY };
               const sc = (fx.startScale ?? 0.60) + rp * (fx.expandScale ?? 1.50);
-              drawQuadSprite(wTex, pRing.sx, pRing.sy, 128 * sc * baseUnitPx, 128 * sc * state.squash * baseUnitPx, Math.sin(rp * Math.PI) * 0.86, 0, [0.85, 0.98, 1.0]);
+              drawQuadSprite(wTex, pRing.sx, pRing.sy, 128 * sc * baseUnitPx, 128 * sc * sinP * baseUnitPx, Math.sin(rp * Math.PI) * 0.86, 0, [0.85, 0.98, 1.0]);
             }
           }
         }
@@ -1845,7 +1870,7 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
       const shTex = getStaticTex("shadowDither");
       if (shTex) {
         const sw = 74 * airScale * sxMul * baseUnitPx;
-        const sh = 52 * airScale * (state.squash / 0.70) * baseUnitPx;
+        const sh = 74 * airScale * sinP * baseUnitPx;
         drawQuadSprite(shTex, screenCx, screenGroundY, sw, sh, 0.92, 0);
       }
     }
@@ -1862,14 +1887,14 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
       const shTex = getStaticTex("shadowDither");
       if (state.stageOn && shTex) {
         const ws = project3D(compDraw.wx, compDraw.wy, 0);
-        drawQuadSprite(shTex, ws.sx, ws.sy, 32 * baseUnitPx, 22 * (state.squash / 0.70) * baseUnitPx, 0.42, 0);
+        drawQuadSprite(shTex, ws.sx, ws.sy, 32 * baseUnitPx, 32 * sinP * baseUnitPx, 0.42, 0);
       }
-      compositeFbo(compDraw.cg.fbo, compProj.sx, compProj.sy, compDraw.cg.pivotX, compDraw.cg.pivotY, baseUnitPx * compDraw.scale, compDraw.outRgb, 1.05);
+      compositeFbo(compDraw.cg.fbo, compProj.sx, compProj.sy, compDraw.cg.pivotX, compDraw.pivotY, baseUnitPx * compDraw.scale, compDraw.outRgb, 1.05);
     }
 
     // 2D. MAIN 3D CHARACTER
     if (atlasTex) {
-      compositeFbo(charFbo, screenCx, screenGroundY, CHAR_PIVOT_X, CHAR_PIVOT_Y, baseUnitPx, theme.outline, 1.12);
+      compositeFbo(charFbo, screenCx, screenGroundY, CHAR_PIVOT_X, charPivotY, baseUnitPx, theme.outline, 1.12);
     }
 
     // 2E. FRONT 3D LAYER
@@ -1877,9 +1902,9 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
       const shTex = getStaticTex("shadowDither");
       if (state.stageOn && shTex) {
         const ws = project3D(compDraw.wx, compDraw.wy, 0);
-        drawQuadSprite(shTex, ws.sx, ws.sy, 32 * baseUnitPx, 22 * (state.squash / 0.70) * baseUnitPx, 0.42, 0);
+        drawQuadSprite(shTex, ws.sx, ws.sy, 32 * baseUnitPx, 32 * sinP * baseUnitPx, 0.42, 0);
       }
-      compositeFbo(compDraw.cg.fbo, compProj.sx, compProj.sy, compDraw.cg.pivotX, compDraw.cg.pivotY, baseUnitPx * compDraw.scale, compDraw.outRgb, 1.05);
+      compositeFbo(compDraw.cg.fbo, compProj.sx, compProj.sy, compDraw.cg.pivotX, compDraw.pivotY, baseUnitPx * compDraw.scale, compDraw.outRgb, 1.05);
     }
     for (let i = 0; i < front.length; i++) {
       const pt = front[i];
@@ -2002,7 +2027,7 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     bOut.querySelector("span").textContent = state.outlineOn ? "OUTLINE: ON" : "OUTLINE: OFF";
 
     document.getElementById("txtTheme").textContent = THEMES[state.themeIdx].name;
-    document.getElementById("btnTopView").classList.toggle("active", state.squash >= 0.98);
+    document.getElementById("btnTopView").classList.toggle("active", state.pitchDeg >= 89);
     document.getElementById("btnSpread").classList.toggle("active", state.spacing >= 1.80);
     document.getElementById("btnFaceZoom").classList.toggle("active", state.faceFocus);
   }
@@ -2028,7 +2053,8 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     if (state.faceFocus) {
       state.zoom = 2.25;
       state.spacing = 1.0;
-      state.squash = DEFAULTS.squash;
+      state.pitchDeg = DEFAULT_PITCH_DEG;
+      state.squash = Math.sin((state.pitchDeg * Math.PI) / 180);
       syncSpacing();
       syncSquash();
     } else {
@@ -2059,7 +2085,12 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     });
 
     syncFps = bindPixelSlider("slFps", 6, 36, 1, () => state.animFps, (v) => { state.animFps = Math.round(v); }, (v) => { valFps.textContent = String(Math.round(v)); });
-    syncSquash = bindPixelSlider("slSquash", 0.35, 1.0, 0.01, () => state.squash, (v) => { state.squash = v; syncButtons(); }, (v) => { valSquash.textContent = v.toFixed(2); });
+    syncSquash = bindPixelSlider(
+      "slSquash", 15, 90, 1,
+      () => state.pitchDeg,
+      (v) => { state.pitchDeg = Math.round(v); state.squash = Math.sin((state.pitchDeg * Math.PI) / 180); syncButtons(); },
+      (v) => { valSquash.textContent = String(Math.round(v)) + "°"; }
+    );
     syncSpacing = bindPixelSlider("slSpacing", 0.5, 2.2, 0.05, () => state.spacing, (v) => { state.spacing = v; syncButtons(); }, (v) => { valSpacing.textContent = v.toFixed(2); });
     syncZoom = bindPixelSlider("slZoom", 0.8, 3.2, 0.05, () => state.zoom, (v) => { state.zoom = v; }, (v) => { valZoom.textContent = v.toFixed(2) + "x"; });
 
@@ -2102,8 +2133,24 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     }
 
     document.getElementById("btnPlayAnim").addEventListener("click", togglePlayAnim);
-    document.getElementById("btnTopView").addEventListener("click", () => { state.faceFocus = false; state.squash = state.squash >= 0.98 ? DEFAULTS.squash : 1.0; syncSquash(); syncButtons(); });
-    document.getElementById("btnSpread").addEventListener("click", () => { state.faceFocus = false; state.spacing = state.spacing >= 1.80 ? 1.0 : 2.0; syncSpacing(); syncButtons(); });
+    document.getElementById("btnTopView").addEventListener("click", () => {
+      state.faceFocus = false;
+      state.pitchDeg = state.pitchDeg >= 89 ? DEFAULT_PITCH_DEG : 90;
+      state.squash = Math.sin((state.pitchDeg * Math.PI) / 180);
+      syncSquash();
+      syncButtons();
+    });
+    document.getElementById("btnSpread").addEventListener("click", () => {
+      state.faceFocus = false;
+      state.spacing = state.spacing >= 1.80 ? 1.0 : 2.0;
+      if (state.spacing >= 1.80 && state.pitchDeg > 65) {
+        state.pitchDeg = 38;
+        state.squash = Math.sin((state.pitchDeg * Math.PI) / 180);
+        syncSquash();
+      }
+      syncSpacing();
+      syncButtons();
+    });
     document.getElementById("btnFaceZoom").addEventListener("click", toggleFaceFocus);
     document.getElementById("btnBounce").addEventListener("click", () => impulseSquash(0.84, 1.20));
     document.getElementById("btnAutoSpin").addEventListener("click", () => { state.autoSpin = !state.autoSpin; syncButtons(); });
@@ -2124,7 +2171,8 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
       state.autoSpin = true;
       state.springOn = true;
       state.fxOn = true;
-      state.squash = DEFAULTS.squash;
+      state.pitchDeg = DEFAULT_PITCH_DEG;
+      state.squash = Math.sin((state.pitchDeg * Math.PI) / 180);
       state.spacing = DEFAULTS.spacing;
       state.zoom = DEFAULTS.zoom;
       state.faceFocus = false;

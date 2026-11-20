@@ -142,11 +142,11 @@
 | **`F` キー / `FACE` ボタン** | 表情が見やすい顔アップ視点へ切替 |
 | **`B` キー / `BOUNCE` ボタン** | 弾性バウンス（スクワッシュ＆ストレッチ） |
 | **`Q` / `E` または `←` / `→`** | 左右へ連続回転 |
-| **`R` キー / `RESET` ボタン** | 初期状態（`SQUASH 0.35` / `ICE LAB` / `SMOOTH AA`）へリセット |
+| **`R` キー / `RESET` ボタン** | 初期状態（`PITCH 20°` / `ICE LAB` / `SMOOTH AA`）へリセット |
 
 ### 主な表示カスタマイズ（右パネル）
 - **RENDER STYLE**: `SMOOTH AA`（デフォルト）／`PIXEL+AA`（ピクセル粒感＋境界 AA）／`RETRO PX`（王道ドット絵）／`SILKY 3D`（フィギュア風滑らか）＋ `DOT SIZE` 調整
-- **3D コントロール**: `ANIM FPS` (6〜36 FPS) / `SQUASH`（俯瞰角度 `0.35`〜`1.00`、`TOP` 真上視点） / `SPACING`（`SPREAD` で 160 スライス層を展開観察） / `ZOOM`
+- **3D コントロール**: `ANIM FPS` (6〜36 FPS) / `PITCH`（真の 3D 俯瞰角度 `15°`〜`90°`、`TOP` 真上視点） / `SPACING`（`SPREAD` で 160 スライス層を展開観察） / `ZOOM`
 - **背景・演出**: `ICE LAB` / `DEEP SEA` / `MIDNIGHT` の 3 テーマ、`FX: ON/OFF`、`OUTLINE: ON/OFF`、`SPRING: ON/OFF`
 
 ---

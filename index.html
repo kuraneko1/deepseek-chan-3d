@@ -623,15 +623,15 @@
         </div>
 
         <div class="slider-row">
-          <span class="slider-label">SQUASH</span>
-          <div class="px-slider" id="slSquash" role="slider" tabindex="0" aria-label="Camera Squash" aria-valuemin="0.35" aria-valuemax="1.00" aria-valuenow="0.35">
+          <span class="slider-label">PITCH</span>
+          <div class="px-slider" id="slSquash" role="slider" tabindex="0" aria-label="Camera Pitch Angle" aria-valuemin="15" aria-valuemax="90" aria-valuenow="20">
             <div class="px-slider-track">
               <div class="px-slider-fill"></div>
               <div class="px-slider-ticks"></div>
             </div>
             <div class="px-slider-thumb"></div>
           </div>
-          <span class="slider-val" id="valSquash">0.35</span>
+          <span class="slider-val" id="valSquash">20°</span>
           <button class="px-btn slider-action" id="btnTopView" type="button">TOP</button>
         </div>
 
@@ -762,7 +762,8 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     angle: 0.35,
     autoSpin: true,
     spinSpeed: 0.42,
-    squash: 0.35,
+    pitchDeg: 20,
+    squash: Math.sin((20 * Math.PI) / 180),
     spacing: 1.0,
     zoom: 1.45,
     faceFocus: false,
@@ -1718,12 +1719,20 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     const assetKey = `anim_${state.motion}_${String(fIdx).padStart(2, "0")}`;
     const atlasTex = getAtlasTexture(assetKey);
 
+    // True 3D orthographic elevation: y_screen = rot.y * sin(pitch) - z * cos(pitch) * spacing
+    const pitchRad = (state.pitchDeg * Math.PI) / 180;
+    const sinP = Math.sin(pitchRad);
+    const cosP = Math.cos(pitchRad);
+    state.squash = sinP;
+    const zStep = cosP * state.spacing;
+
     let baseUnitPx;
     if (state.faceFocus) {
       baseUnitPx = Math.min(cw / 108, ch / 118) * (state.zoom / 2.2);
     } else {
       const needW = 196;
-      const needH = SLICE_COUNT * state.spacing + 122 * state.squash + 44;
+      // Pitch-invariant fit height so tilting camera pitch never jumps zoom
+      const needH = SLICE_COUNT * Math.max(1.0, state.spacing) + SLICE_H * 0.42 + 44;
       const fitScale = Math.min(cw / needW, ch / needH);
       baseUnitPx = fitScale * (state.zoom / 1.45);
     }
@@ -1732,16 +1741,28 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     const sxMul = state.sqX;
     const syMul = state.sqY;
 
+    // Dynamically center character & whale pivots inside FBOs across all pitch angles (15°..90°)
+    const charBottomMargin = Math.max(24, Math.ceil(SLICE_H * 0.52 * sinP + 16));
+    const charPivotY = Math.min(
+      charFbo.virtH - charBottomMargin,
+      Math.round(charFbo.virtH * 0.5 + (SLICE_COUNT * 0.44) * zStep)
+    );
+    const whaleBottomMargin = Math.max(14, Math.ceil(WHALE_H * 0.52 * sinP + 8));
+    const whalePivotY = Math.min(
+      whaleFbo.virtH - whaleBottomMargin,
+      Math.round(whaleFbo.virtH * 0.5 + (WHALE_SLICES * 0.45) * zStep)
+    );
+
     // -----------------------------------------------------------------------
     // PASS 1A: Render DeepSeek-chan 3D sprite stack into charFbo
     // -----------------------------------------------------------------------
     if (atlasTex) {
-      const vbo = (state.spacing > 1.32) ? charVBO1x : charVBO2x;
+      const vbo = (zStep < 0.05 || state.spacing > 1.32) ? charVBO1x : charVBO2x;
       renderStackToFbo(
         charFbo, vbo, atlasTex,
         SLICE_W, SLICE_H, ATLAS_COLS, ATLAS_ROWS,
-        CHAR_PIVOT_X, CHAR_PIVOT_Y,
-        state.angle, state.squash, state.spacing, sxMul, syMul
+        CHAR_PIVOT_X, charPivotY,
+        state.angle, sinP, zStep, sxMul, syMul
       );
     }
 
@@ -1764,12 +1785,12 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
         const vy = ry * Math.cos(orbitPh);
         const whaleAngle = state.angle + Math.atan2(-vx, vy);
 
-        const wVbo = (state.spacing > 1.32) ? whaleVBO1x : whaleVBO2x;
+        const wVbo = (zStep < 0.05 || state.spacing > 1.32) ? whaleVBO1x : whaleVBO2x;
         renderStackToFbo(
           whaleFbo, wVbo, wTex,
           WHALE_W, WHALE_H, WHALE_COLS, WHALE_ROWS,
-          WHALE_PIVOT_X, WHALE_PIVOT_Y,
-          whaleAngle, state.squash, state.spacing, 1.0, 1.0
+          WHALE_PIVOT_X, whalePivotY,
+          whaleAngle, sinP, zStep, 1.0, 1.0
         );
         whaleDraw = { wx, wy, wz };
       }
@@ -1800,10 +1821,10 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     const screenCx = cw * 0.5;
     let screenGroundY;
     if (state.faceFocus) {
-      screenGroundY = ch * 0.56 + 104.0 * state.spacing * baseUnitPx;
+      screenGroundY = ch * 0.56 + 104.0 * zStep * baseUnitPx;
     } else {
-      const totalH = (SLICE_COUNT * state.spacing + 70.0 * state.squash) * baseUnitPx;
-      screenGroundY = ch * 0.50 + totalH * 0.36;
+      const midZ = SLICE_COUNT * 0.44;
+      screenGroundY = ch * 0.51 + midZ * zStep * baseUnitPx;
     }
 
     const ca = Math.cos(state.angle);
@@ -1817,7 +1838,7 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
       const ry = px * sa + py * ca;
       return {
         sx: screenCx + rx * sxMul * baseUnitPx,
-        sy: screenGroundY + (ry * state.squash - wz * state.spacing) * syMul * baseUnitPx,
+        sy: screenGroundY + (ry * sinP - wz * zStep) * syMul * baseUnitPx,
         depth: ry,
       };
     }
@@ -1833,7 +1854,7 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
 
       if (staticTex.turntableRing) {
         const rw = 132 * baseUnitPx;
-        const rh = 132 * state.squash * baseUnitPx;
+        const rh = 132 * sinP * baseUnitPx;
         drawQuadSprite(staticTex.turntableRing, screenCx, screenGroundY, rw, rh, 0.94, 0);
       }
 
@@ -1848,7 +1869,7 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
               drawQuadSprite(
                 staticTex.fxWaveRing,
                 screenCx, screenGroundY,
-                128 * sc * baseUnitPx, 128 * sc * state.squash * baseUnitPx,
+                128 * sc * baseUnitPx, 128 * sc * sinP * baseUnitPx,
                 a, 0, [0.85, 0.98, 1.0]
               );
             }
@@ -1861,7 +1882,7 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
             drawQuadSprite(
               staticTex.fxWaveRing,
               pRing.sx, pRing.sy,
-              116 * sc * baseUnitPx, 116 * sc * state.squash * baseUnitPx,
+              116 * sc * baseUnitPx, 116 * sc * sinP * baseUnitPx,
               Math.sin(sp * Math.PI) * 0.82, 0, [0.82, 0.98, 1.0]
             );
           }
@@ -1870,7 +1891,7 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
 
       if (staticTex.shadowDither) {
         const sw = 74 * airScale * sxMul * baseUnitPx;
-        const sh = 52 * airScale * (state.squash / 0.70) * baseUnitPx;
+        const sh = 74 * airScale * sinP * baseUnitPx;
         drawQuadSprite(staticTex.shadowDither, screenCx, screenGroundY, sw, sh, 0.92, 0);
       }
     }
@@ -1891,23 +1912,23 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
       // Subtle floor shadow under the floating 3D whale too!
       if (state.stageOn && staticTex.shadowDither) {
         const ws = project3D(whaleDraw.wx, whaleDraw.wy, 0);
-        drawQuadSprite(staticTex.shadowDither, ws.sx, ws.sy, 32 * baseUnitPx, 22 * (state.squash / 0.70) * baseUnitPx, 0.42, 0);
+        drawQuadSprite(staticTex.shadowDither, ws.sx, ws.sy, 32 * baseUnitPx, 32 * sinP * baseUnitPx, 0.42, 0);
       }
-      compositeFbo(whaleFbo, whaleProj.sx, whaleProj.sy, WHALE_PIVOT_X, WHALE_PIVOT_Y, baseUnitPx * 0.92, theme.whaleOut, 1.05);
+      compositeFbo(whaleFbo, whaleProj.sx, whaleProj.sy, WHALE_PIVOT_X, whalePivotY, baseUnitPx * 0.92, theme.whaleOut, 1.05);
     }
 
     // 2D. MAIN 3D CHARACTER (DeepSeek-chan!)
     if (atlasTex) {
-      compositeFbo(charFbo, screenCx, screenGroundY, CHAR_PIVOT_X, CHAR_PIVOT_Y, baseUnitPx, theme.outline, 1.12);
+      compositeFbo(charFbo, screenCx, screenGroundY, CHAR_PIVOT_X, charPivotY, baseUnitPx, theme.outline, 1.12);
     }
 
     // 2E. FRONT 3D LAYER (3D DeepSeek Logo Whale & Ocean Particles when IN FRONT of DeepSeek-chan!)
     if (whaleProj && whaleProj.depth >= charDepth) {
       if (state.stageOn && staticTex.shadowDither) {
         const ws = project3D(whaleDraw.wx, whaleDraw.wy, 0);
-        drawQuadSprite(staticTex.shadowDither, ws.sx, ws.sy, 32 * baseUnitPx, 22 * (state.squash / 0.70) * baseUnitPx, 0.42, 0);
+        drawQuadSprite(staticTex.shadowDither, ws.sx, ws.sy, 32 * baseUnitPx, 32 * sinP * baseUnitPx, 0.42, 0);
       }
-      compositeFbo(whaleFbo, whaleProj.sx, whaleProj.sy, WHALE_PIVOT_X, WHALE_PIVOT_Y, baseUnitPx * 0.92, theme.whaleOut, 1.05);
+      compositeFbo(whaleFbo, whaleProj.sx, whaleProj.sy, WHALE_PIVOT_X, whalePivotY, baseUnitPx * 0.92, theme.whaleOut, 1.05);
     }
     for (let i = 0; i < front.length; i++) {
       const pt = front[i];
@@ -2030,7 +2051,7 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     bOut.querySelector("span").textContent = state.outlineOn ? "OUTLINE: ON" : "OUTLINE: OFF";
 
     document.getElementById("txtTheme").textContent = THEMES[state.themeIdx].name;
-    document.getElementById("btnTopView").classList.toggle("active", state.squash >= 0.98);
+    document.getElementById("btnTopView").classList.toggle("active", state.pitchDeg >= 89);
     document.getElementById("btnSpread").classList.toggle("active", state.spacing >= 1.80);
     document.getElementById("btnFaceZoom").classList.toggle("active", state.faceFocus);
   }
@@ -2055,7 +2076,8 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     if (state.faceFocus) {
       state.zoom = 2.25;
       state.spacing = 1.0;
-      state.squash = 0.35;
+      state.pitchDeg = 20;
+      state.squash = Math.sin((20 * Math.PI) / 180);
       syncSpacing();
       syncSquash();
     } else {
@@ -2098,10 +2120,10 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
       (v) => { valFps.textContent = String(Math.round(v)); }
     );
     syncSquash = bindPixelSlider(
-      "slSquash", 0.35, 1.0, 0.01,
-      () => state.squash,
-      (v) => { state.squash = v; syncButtons(); },
-      (v) => { valSquash.textContent = v.toFixed(2); }
+      "slSquash", 15, 90, 1,
+      () => state.pitchDeg,
+      (v) => { state.pitchDeg = Math.round(v); state.squash = Math.sin((state.pitchDeg * Math.PI) / 180); syncButtons(); },
+      (v) => { valSquash.textContent = String(Math.round(v)) + "°"; }
     );
     syncSpacing = bindPixelSlider(
       "slSpacing", 0.5, 2.2, 0.05,
@@ -2172,13 +2194,19 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
     document.getElementById("btnPlayAnim").addEventListener("click", togglePlayAnim);
     document.getElementById("btnTopView").addEventListener("click", () => {
       state.faceFocus = false;
-      state.squash = state.squash >= 0.98 ? 0.35 : 1.0;
+      state.pitchDeg = state.pitchDeg >= 89 ? 20 : 90;
+      state.squash = Math.sin((state.pitchDeg * Math.PI) / 180);
       syncSquash();
       syncButtons();
     });
     document.getElementById("btnSpread").addEventListener("click", () => {
       state.faceFocus = false;
       state.spacing = state.spacing >= 1.80 ? 1.0 : 2.0;
+      if (state.spacing >= 1.80 && state.pitchDeg > 65) {
+        state.pitchDeg = 38;
+        state.squash = Math.sin((state.pitchDeg * Math.PI) / 180);
+        syncSquash();
+      }
       syncSpacing();
       syncButtons();
     });
@@ -2217,7 +2245,8 @@ window.SPRITE_ASSETS = {"shadowDither":"data:image/png;base64,iVBORw0KGgoAAAANSU
       state.autoSpin = true;
       state.springOn = true;
       state.fxOn = true;
-      state.squash = 0.35;
+      state.pitchDeg = 20;
+      state.squash = Math.sin((20 * Math.PI) / 180);
       state.spacing = 1.0;
       state.zoom = 1.45;
       state.faceFocus = false;
