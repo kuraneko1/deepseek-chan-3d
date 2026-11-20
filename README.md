@@ -77,11 +77,12 @@
 
 ---
 
-## 使用している疑似 3D エンジン・スキル
+## 使用している疑似 3D エンジン・スキル & クレジット
 
-本作品の描画エンジンおよびアニメ調疑似 3D 制作手法は、キャラクター非依存の汎用エンジン＆スキルリポジトリとして別途切り出し予定です。
+本作品の WebGL 2-Pass 描画エンジンおよびアニメ調 24 FPS 疑似 3D 制作手法は、キャラクター非依存の汎用スキル＆エンジンとして別リポジトリに分離・公開しています。
 
-- **Anime Pseudo-3D Skill & Engine (`anime-pseudo-3d`)**: *(準備中 — 公開後にこちらへリンクを追加予定)*
+- **Anime Pseudo-3D Skill & Engine**: [kuraneko1/anime-pseudo-3d](https://github.com/kuraneko1/anime-pseudo-3d)
+- **Credits & Inspiration**: 本作品のスプライトスタッキング（積層スライスによる疑似 3D ピクセルアート）の発想と基礎手法は、**[SpriteCook — Sprite stacking for fake 3D pixel art cars and props](https://www.spritecook.ai/blog/sprite-stacking-pixel-art)** から多大なる影響を受けています。また汎用基盤として [kuraneko1/sprite-stacking-3d](https://github.com/kuraneko1/sprite-stacking-3d) の知見を活用しています。
 
 ---
 
