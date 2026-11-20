@@ -148,13 +148,13 @@
 - **RENDER STYLE**: `SMOOTH AA`（デフォルト）／`PIXEL+AA`（ピクセル粒感＋境界 AA）／`RETRO PX`（王道ドット絵）／`SILKY 3D`（フィギュア風滑らか）＋ `DOT SIZE` 調整
 - **3D コントロール**: `ANIM FPS` (6〜36 FPS) / `PITCH`（真の 3D 俯瞰角度 `15°`〜`90°`、`TOP` 真上視点） / `SPACING`（`SPREAD` で 160 スライス層を展開観察） / `ZOOM`
 - **背景・演出**: `ICE LAB` / `DEEP SEA` / `MIDNIGHT` の 3 テーマ、`FX: ON/OFF`、`OUTLINE: ON/OFF`、`SPRING: ON/OFF`
-- **ポータブル `.ap3d` 形式 & カテゴリ絞り込み（[`ceo.html`](./ceo.html)）**: カテゴリ別フィルタ（`ALL` / `BASE` / `POSE` / `ATTACK` / `BOSS`）、`[` / `]` 送り、さらに **`LOAD` / `+MOTION` / `EXPORT`**（およびドラッグ＆ドロップ）で `.ap3d` バイナリパッケージの書き出し・読込・モーション追加結合に対応
+- **ポータブル `.ap3d` 形式 & カテゴリ絞り込み（[`index.html`](./index.html) / [`ceo.html`](./ceo.html) 両対応）**: カテゴリ別フィルタ、`[` / `]` 送り、さらに **`LOAD` / `+MOTION` / `EXPORT`**（およびドラッグ＆ドロップ）で `.ap3d` バイナリパッケージの書き出し・読込・モーション追加結合に対応
 
 ---
 
 ## 使用している疑似 3D エンジン・スキル & クレジット
 
-本作品の WebGL 2-Pass 描画エンジンおよびアニメ調 24 FPS 疑似 3D 制作手法は、キャラクター非依存の汎用スキル＆エンジンとして別リポジトリに分離・公開しています（[`ceo.html`](./ceo.html) はこのエンジンを無改造で使用した実作モデルです）。
+本作品の WebGL 2-Pass 描画エンジンおよびアニメ調 24 FPS 疑似 3D 制作手法は、キャラクター非依存の汎用スキル＆エンジンとして別リポジトリに分離・公開しています（[`index.html`](./index.html) および [`ceo.html`](./ceo.html) はいずれもこの最新エンジン＋`AnimeUIKit` を無改造で使用しています）。
 
 - **Anime Pseudo-3D Skill & Engine**: [kuraneko1/anime-pseudo-3d](https://github.com/kuraneko1/anime-pseudo-3d)
 - **Credits & Inspiration**: 本作品のスプライトスタッキング（積層スライスによる疑似 3D ピクセルアート）の発想と基礎手法は、**[SpriteCook — Sprite stacking for fake 3D pixel art cars and props](https://www.spritecook.ai/blog/sprite-stacking-pixel-art)** から多大なる影響を受けています。また汎用基盤として [kuraneko1/sprite-stacking-3d](https://github.com/kuraneko1/sprite-stacking-3d) の知見を活用しています。

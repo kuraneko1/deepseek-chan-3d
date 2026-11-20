@@ -148,13 +148,13 @@ Features 9 power-type motions (`1. IDLE` / `2. MARCH` / `3. FLEX` / `4. SHHH` / 
 - **RENDER STYLE**: `SMOOTH AA` (default) · `PIXEL+AA` (crisp square pixel grain + smooth edge AA) · `RETRO PX` (classic hard-edge pixel art) · `SILKY 3D` (smooth figurine look) + adjustable `DOT SIZE`
 - **3D CONTROLS**: `ANIM FPS` (6–36 FPS) · `PITCH` (true 3D elevation angle `15°`–`90°`, `TOP` overhead view) · `SPACING` (`SPREAD` explodes all 160 stacked slices) · `ZOOM`
 - **THEMES & FX**: `ICE LAB` / `DEEP SEA` / `MIDNIGHT` studio themes, `FX: ON/OFF`, `OUTLINE: ON/OFF`, `SPRING: ON/OFF`
-- **Portable `.ap3d` Package & Category Filters ([`ceo.html`](./ceo.html))**: Filter motions by category (`ALL` / `BASE` / `POSE` / `ATTACK` / `BOSS`), step with `[` / `]`, and use **`LOAD` / `+MOTION` / `EXPORT`** (or drag-and-drop) to export, load, or merge portable `.ap3d` binary packages offline
+- **Portable `.ap3d` Package & Category Filters (both [`index.html`](./index.html) & [`ceo.html`](./ceo.html))**: Filter motions by category, step with `[` / `]`, and use **`LOAD` / `+MOTION` / `EXPORT`** (or drag-and-drop) to export, load, or merge portable `.ap3d` binary packages offline
 
 ---
 
 ## Pseudo-3D Engine, Skill & Credits
 
-The character-agnostic WebGL 2-Pass rendering engine and 24-FPS anime pseudo-3D production toolkit behind these viewers are published in a dedicated reusable repository ([`ceo.html`](./ceo.html) runs directly on the unmodified engine):
+The character-agnostic WebGL 2-Pass rendering engine and 24-FPS anime pseudo-3D production toolkit behind these viewers are published in a dedicated reusable repository (both [`index.html`](./index.html) and [`ceo.html`](./ceo.html) run directly on the latest unmodified engine & `AnimeUIKit`):
 
 - **Anime Pseudo-3D Skill & Engine**: [kuraneko1/anime-pseudo-3d](https://github.com/kuraneko1/anime-pseudo-3d/blob/main/README.en.md)
 - **Credits & Inspiration**: The core sprite-stacking (layered slice fake-3D pixel art) inspiration and foundational technique are deeply influenced by **[SpriteCook — Sprite stacking for fake 3D pixel art cars and props](https://www.spritecook.ai/blog/sprite-stacking-pixel-art)**. Also builds upon general sprite-stacking techniques from [kuraneko1/sprite-stacking-3d](https://github.com/kuraneko1/sprite-stacking-3d).

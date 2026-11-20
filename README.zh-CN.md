@@ -148,13 +148,13 @@
 - **RENDER STYLE（质感模式）**：`SMOOTH AA`（默认丝滑抗锯齿）／`PIXEL+AA`（像素颗粒感＋边缘抗锯齿）／`RETRO PX`（经典硬边复古像素）／`SILKY 3D`（手办级柔滑曲面），并支持调节 `DOT SIZE`
 - **3D 相机与层叠参数**：`ANIM FPS`（6～36 FPS 变速）/ `PITCH`（真 3D 俯仰角 `15°`～`90°`，`TOP` 真俯视）/ `SPACING`（点击 `SPREAD` 可展开观察全部 160 层切片）/ `ZOOM`
 - **背景主题与开关**：`ICE LAB` / `DEEP SEA` / `MIDNIGHT` 三套场景主题，`FX: ON/OFF`、`OUTLINE: ON/OFF`、`SPRING: ON/OFF`
-- **便携 `.ap3d` 格式与分类筛选（[`ceo.html`](./ceo.html)）**：支持动作分类标签（`ALL` / `BASE` / `POSE` / `ATTACK` / `BOSS`）、`[` / `]` 切换，以及 **`LOAD` / `+MOTION` / `EXPORT`** 与画布拖拽，离线导出、加载或合并任意 `.ap3d` 角色包
+- **便携 `.ap3d` 格式与分类筛选（[`index.html`](./index.html) 与 [`ceo.html`](./ceo.html) 双端支持）**：支持动作分类标签、`[` / `]` 切换，以及 **`LOAD` / `+MOTION` / `EXPORT`** 与画布拖拽，离线导出、加载或合并任意 `.ap3d` 角色包
 
 ---
 
 ## 底层伪 3D 引擎、技能库与致谢
 
-本作品背后的角色无关 WebGL 2-Pass 渲染引擎与 24 FPS 动漫风伪 3D 制作工具链，已独立开源发布于专用仓库（[`ceo.html`](./ceo.html) 即为直接调用未修改引擎的实装范例）：
+本作品背后的角色无关 WebGL 2-Pass 渲染引擎与 24 FPS 动漫风伪 3D 制作工具链，已独立开源发布于专用仓库（[`index.html`](./index.html) 与 [`ceo.html`](./ceo.html) 均直接基于最新未修改引擎与 `AnimeUIKit` 构建）：
 
 - **Anime Pseudo-3D 技能与引擎仓库**：[kuraneko1/anime-pseudo-3d](https://github.com/kuraneko1/anime-pseudo-3d/blob/main/README.zh-CN.md)
 - **致谢与灵感来源（Credits & Inspiration）**：本作品所采用的精灵堆叠（Sprite Stacking，通过多层 2D 切片构建伪 3D 像素艺术）核心思路与基础方法深受 **[SpriteCook — Sprite stacking for fake 3D pixel art cars and props](https://www.spritecook.ai/blog/sprite-stacking-pixel-art)** 启发，同时参考了通用工具库 [kuraneko1/sprite-stacking-3d](https://github.com/kuraneko1/sprite-stacking-3d) 的实践经验。
