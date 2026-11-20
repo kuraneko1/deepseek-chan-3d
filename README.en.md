@@ -148,6 +148,7 @@ Features 9 power-type motions (`1. IDLE` / `2. MARCH` / `3. FLEX` / `4. SHHH` / 
 - **RENDER STYLE**: `SMOOTH AA` (default) · `PIXEL+AA` (crisp square pixel grain + smooth edge AA) · `RETRO PX` (classic hard-edge pixel art) · `SILKY 3D` (smooth figurine look) + adjustable `DOT SIZE`
 - **3D CONTROLS**: `ANIM FPS` (6–36 FPS) · `PITCH` (true 3D elevation angle `15°`–`90°`, `TOP` overhead view) · `SPACING` (`SPREAD` explodes all 160 stacked slices) · `ZOOM`
 - **THEMES & FX**: `ICE LAB` / `DEEP SEA` / `MIDNIGHT` studio themes, `FX: ON/OFF`, `OUTLINE: ON/OFF`, `SPRING: ON/OFF`
+- **Portable `.ap3d` Package & Category Filters ([`ceo.html`](./ceo.html))**: Filter motions by category (`ALL` / `BASE` / `POSE` / `ATTACK` / `BOSS`), step with `[` / `]`, and use **`LOAD` / `+MOTION` / `EXPORT`** (or drag-and-drop) to export, load, or merge portable `.ap3d` binary packages offline
 
 ---
 

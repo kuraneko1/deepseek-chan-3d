@@ -148,6 +148,7 @@
 - **RENDER STYLE**: `SMOOTH AA`（デフォルト）／`PIXEL+AA`（ピクセル粒感＋境界 AA）／`RETRO PX`（王道ドット絵）／`SILKY 3D`（フィギュア風滑らか）＋ `DOT SIZE` 調整
 - **3D コントロール**: `ANIM FPS` (6〜36 FPS) / `PITCH`（真の 3D 俯瞰角度 `15°`〜`90°`、`TOP` 真上視点） / `SPACING`（`SPREAD` で 160 スライス層を展開観察） / `ZOOM`
 - **背景・演出**: `ICE LAB` / `DEEP SEA` / `MIDNIGHT` の 3 テーマ、`FX: ON/OFF`、`OUTLINE: ON/OFF`、`SPRING: ON/OFF`
+- **ポータブル `.ap3d` 形式 & カテゴリ絞り込み（[`ceo.html`](./ceo.html)）**: カテゴリ別フィルタ（`ALL` / `BASE` / `POSE` / `ATTACK` / `BOSS`）、`[` / `]` 送り、さらに **`LOAD` / `+MOTION` / `EXPORT`**（およびドラッグ＆ドロップ）で `.ap3d` バイナリパッケージの書き出し・読込・モーション追加結合に対応
 
 ---
 

@@ -148,6 +148,7 @@
 - **RENDER STYLE（质感模式）**：`SMOOTH AA`（默认丝滑抗锯齿）／`PIXEL+AA`（像素颗粒感＋边缘抗锯齿）／`RETRO PX`（经典硬边复古像素）／`SILKY 3D`（手办级柔滑曲面），并支持调节 `DOT SIZE`
 - **3D 相机与层叠参数**：`ANIM FPS`（6～36 FPS 变速）/ `PITCH`（真 3D 俯仰角 `15°`～`90°`，`TOP` 真俯视）/ `SPACING`（点击 `SPREAD` 可展开观察全部 160 层切片）/ `ZOOM`
 - **背景主题与开关**：`ICE LAB` / `DEEP SEA` / `MIDNIGHT` 三套场景主题，`FX: ON/OFF`、`OUTLINE: ON/OFF`、`SPRING: ON/OFF`
+- **便携 `.ap3d` 格式与分类筛选（[`ceo.html`](./ceo.html)）**：支持动作分类标签（`ALL` / `BASE` / `POSE` / `ATTACK` / `BOSS`）、`[` / `]` 切换，以及 **`LOAD` / `+MOTION` / `EXPORT`** 与画布拖拽，离线导出、加载或合并任意 `.ap3d` 角色包
 
 ---
 
