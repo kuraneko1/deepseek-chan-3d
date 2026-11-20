@@ -1,6 +1,28 @@
+<div align="center">
+
 # DeepSeek-chan 3D Viewer
 
-**DeepSeek ちゃん（クジラメイド）** と **ムキムキ DeepSeek CEO（パワータイプ）** の 360° 回転対応・24 FPS 疑似 3D（スプライトスタッキング）インタラクティブビューワー集です。  
+**DeepSeek ちゃん（クジラメイド）＆ ムキムキ DeepSeek CEO（パワータイプ）**  
+360° 回転対応・24 FPS 疑似 3D（スプライトスタッキング）インタラクティブビューワー
+
+<p>
+  <img src="https://img.shields.io/badge/Engine-WebGL%202--Pass-2e7df6?style=flat-square" alt="WebGL 2-Pass" />
+  <img src="https://img.shields.io/badge/Animation-24%20FPS%20%C3%97%2018%20Motions-00b8e6?style=flat-square" alt="24 FPS x 18 Motions" />
+  <img src="https://img.shields.io/badge/Resolution-160%20Slices-6c5ce7?style=flat-square" alt="160 Slices" />
+  <img src="https://img.shields.io/badge/Runtime-Single%20HTML%20%2F%20Zero%20Deps-10b981?style=flat-square" alt="Zero Dependencies" />
+  <img src="https://img.shields.io/badge/License-MIT-f59e0b?style=flat-square" alt="MIT License" />
+</p>
+
+<p>
+  <b>🇯🇵 日本語</b> &nbsp;|&nbsp;
+  <a href="./README.en.md">🇺🇸 English</a> &nbsp;|&nbsp;
+  <a href="./README.zh-CN.md">🇨🇳 简体中文</a>
+</p>
+
+</div>
+
+---
+
 それぞれ単一 HTML ファイルに全 9 モーション × 24 フレーム（計 216 フレーム）・複数表情・3D ボクセル DeepSeek ロゴクジラ・3D パーティクル演出を完全内蔵しており、外部サーバーやインストール不要でブラウザからそのまま動かせます。
 
 | キャラクター | 単体 HTML（`file://` 直開き） | 収録内容 |
